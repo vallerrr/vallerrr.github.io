@@ -1103,21 +1103,90 @@ span.single-timeline-horizontal.spacial-horizontal-line {width: 88px;}
     display: none;
 }
 
+/* element-2 = the bird's flight path: flies in from off-screen left,
+   then comes to rest centered in the headline area (its original spot). */
 .element-2 {
     bottom: auto;
     top: 50%;
     left: 50%;
-    transform: translateX(-50%) translateY(-50%);
     width: 200px;
     height: 200px;
     opacity: 0.4;
     z-index: 1;
+    transform: translate(-50%, -50%);
+    animation: bird-fly 7s linear forwards;
 }
 
+@keyframes bird-fly {
+    0%   { transform: translate(calc(-50% - 70vw), calc(-50% + 10px)); }
+    50%  { transform: translate(calc(-50% - 30vw), calc(-50% - 30px)); }
+    100% { transform: translate(-50%, -50%); }
+}
+
+/* Three frames extracted from bird_1_flapping.png + bird_1.png. All re-canvased
+   onto the same 838x739 canvas with their HEADS aligned to the same coordinate
+   (anchor at (676, 479)). This way only the wings change between frames; the
+   head and body stay put. The two flap frames alternate during flight; the
+   settled bird_1 fades in at the end as the resting pose. */
 .deco-bird {
+    position: absolute;
+    top: 0;
+    left: 0;
     width: 100%;
     height: 100%;
     object-fit: contain;
+}
+
+.bird-flap-up   { opacity: 0; animation: bird-flap-up   1.4s steps(1) 5; }
+.bird-flap-down { opacity: 0; animation: bird-flap-down 1.4s steps(1) 5; }
+
+@keyframes bird-flap-up {
+    0%, 49.99% { opacity: 0; }
+    50%, 100%  { opacity: 1; }
+}
+
+@keyframes bird-flap-down {
+    0%, 49.99% { opacity: 1; }
+    50%, 100%  { opacity: 0; }
+}
+
+.bird-settled {
+    opacity: 0;
+    animation: bird-settle 0.6s ease-out 6.3s forwards;
+}
+
+@keyframes bird-settle {
+    to { opacity: 1; }
+}
+
+/* keep the headline above the flying bird */
+.welcome-hero .container {
+    position: relative;
+    z-index: 2;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .element-2,
+    .deco-bird { animation: none; }
+    .bird-flap-up,
+    .bird-flap-down { opacity: 0; }
+    .bird-settled  { opacity: 1; }
+}
+
+/* Idle bird: floats next to the cursor after the mouse has been still for 3s */
+.idle-bird {
+    position: fixed;
+    width: 100px;
+    height: auto;
+    pointer-events: none;
+    opacity: 0;
+    /* JS sets left/top to the random target; this centers the bird on that point */
+    transform: translate(-50%, -50%);
+    transition: opacity 0.4s ease;
+    z-index: 9999;
+}
+.idle-bird.visible {
+    opacity: 1;
 }
 
 .header-text h2 {
