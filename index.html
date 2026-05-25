@@ -97,9 +97,9 @@
 		<!--welcome-hero start -->
 		<section id="welcome-hero" class="welcome-hero">
 			<div class="decorative-element element-2">
-				<img src="assets/logo/bird_frame_up.png"   alt="" class="deco-bird bird-flap-up">
-				<img src="assets/logo/bird_frame_down.png" alt="" class="deco-bird bird-flap-down">
-				<img src="assets/logo/bird_settled.png"    alt="decorative bird" class="deco-bird bird-settled">
+				<img src="assets/images/backgrounds/bird_frame_up.png"   alt="" class="deco-bird bird-flap-up">
+				<img src="assets/images/backgrounds/bird_frame_down.png" alt="" class="deco-bird bird-flap-down">
+				<img src="assets/images/backgrounds/bird_settled.png"    alt="decorative bird" class="deco-bird bird-settled">
 			</div>
 			<div class="container">
 				<div class="row">
@@ -499,11 +499,14 @@
         <!--Custom JS-->
         <script src="assets/js/custom.js"></script>
 
-        <!-- Idle-bird: shows logo.png near the cursor when the mouse is still for 3s -->
+        <!-- Idle birds: after 3s of cursor stillness, the logo flits in near the cursor
+             and the standing bird perches on whichever horizontal divider is most visible. -->
         <img src="assets/logo/logo.png" alt="" id="idle-bird" class="idle-bird" aria-hidden="true">
+        <img src="assets/images/backgrounds/standing_bird.png" alt="" id="perched-bird" class="perched-bird" aria-hidden="true">
         <script>
         (function () {
-            var bird = document.getElementById('idle-bird');
+            var bird    = document.getElementById('idle-bird');
+            var perched = document.getElementById('perched-bird');
             if (!bird) return;
             var IDLE_MS    = 3000;   // wait this long after the cursor stops
             var MIN_DIST   = 80;     // bird sits at least this far from cursor
@@ -511,7 +514,43 @@
             var EDGE_PAD   = 70;     // keep the bird this far from viewport edges
             var timer = null;
             var lastX = 0, lastY = 0;
-            var hasMoved = false;
+
+            // Perches: section-heading underlines + the timeline lines in education.
+            var perches = perched
+                ? document.querySelectorAll('.section-heading h2, .single-timeline-horizontal')
+                : [];
+
+            function pickPerch() {
+                if (!perches.length) return null;
+                var viewH = window.innerHeight;
+                var targetY = viewH * 0.4; // upper-middle of viewport
+                var best = null, bestScore = Infinity;
+                for (var i = 0; i < perches.length; i++) {
+                    var r = perches[i].getBoundingClientRect();
+                    if (r.bottom < 40 || r.top > viewH - 40) continue;
+                    var center = (r.top + r.bottom) / 2;
+                    var score  = Math.abs(center - targetY);
+                    if (score < bestScore) { bestScore = score; best = perches[i]; }
+                }
+                return best;
+            }
+
+            function placePerched() {
+                if (!perched) return;
+                var target = pickPerch();
+                if (!target) { perched.classList.remove('visible'); return; }
+                var r = target.getBoundingClientRect();
+                // Anchor to the divider line itself: section-heading underline sits at the
+                // element's bottom; the timeline span is a thin line so top == bottom.
+                var pageBottom = r.bottom + window.pageYOffset;
+                var pageLeft   = r.left   + window.pageXOffset;
+                var birdH = perched.offsetHeight || 70;
+                var x = pageLeft + Math.min(r.width * 0.25, 60);
+                var y = pageBottom - birdH + 6; // toes overlap the line slightly
+                perched.style.left = x + 'px';
+                perched.style.top  = y + 'px';
+                perched.classList.add('visible');
+            }
 
             function show() {
                 // Pick a random angle + distance so each appearance is in a fresh spot.
@@ -525,11 +564,14 @@
                 bird.style.left = x + 'px';
                 bird.style.top  = y + 'px';
                 bird.classList.add('visible');
+                placePerched();
             }
-            function hide() { bird.classList.remove('visible'); }
+            function hide() {
+                bird.classList.remove('visible');
+                if (perched) perched.classList.remove('visible');
+            }
 
             function onMove(e) {
-                hasMoved = true;
                 lastX = e.clientX;
                 lastY = e.clientY;
                 hide();
@@ -542,6 +584,10 @@
                 if (timer) clearTimeout(timer);
                 hide();
             });
+            // If the user scrolls while idle, re-pick the perch so the bird hops with them.
+            window.addEventListener('scroll', function () {
+                if (perched && perched.classList.contains('visible')) placePerched();
+            }, { passive: true });
         })();
         </script>
 
