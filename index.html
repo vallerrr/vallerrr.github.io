@@ -535,17 +535,24 @@
                 return best;
             }
 
+            var lastPerch = null, lastFrac = 0.25;
             function placePerched() {
                 if (!perched) return;
                 var target = pickPerch();
-                if (!target) { perched.classList.remove('visible'); return; }
+                if (!target) { perched.classList.remove('visible'); lastPerch = null; return; }
+                // Pick a new random horizontal spot when we hop to a different divider;
+                // hold the spot steady on plain re-renders (e.g. scroll on the same divider).
+                if (target !== lastPerch) {
+                    lastFrac = 0.1 + Math.random() * 0.7; // 10%..80% across the line
+                    lastPerch = target;
+                }
                 var r = target.getBoundingClientRect();
                 // Anchor to the divider line itself: section-heading underline sits at the
                 // element's bottom; the timeline span is a thin line so top == bottom.
                 var pageBottom = r.bottom + window.pageYOffset;
                 var pageLeft   = r.left   + window.pageXOffset;
                 var birdH = perched.offsetHeight || 70;
-                var x = pageLeft + Math.min(r.width * 0.25, 60);
+                var x = pageLeft + r.width * lastFrac;
                 var y = pageBottom - birdH + 6; // toes overlap the line slightly
                 perched.style.left = x + 'px';
                 perched.style.top  = y + 'px';
@@ -564,6 +571,7 @@
                 bird.style.left = x + 'px';
                 bird.style.top  = y + 'px';
                 bird.classList.add('visible');
+                lastPerch = null; // reset so each new appearance picks a fresh spot
                 placePerched();
             }
             function hide() {
