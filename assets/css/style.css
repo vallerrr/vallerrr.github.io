@@ -379,7 +379,7 @@ span.single-timeline-horizontal.spacial-horizontal-line {width: 88px;}
 .perched-bird {
     position: absolute;
     /* image is 640x360 with both birds sitting in its lower band; feet at ~82.5% of height */
-    height: 130px;
+    height: 200px;
     width: auto;
     pointer-events: none;
     opacity: 0;
