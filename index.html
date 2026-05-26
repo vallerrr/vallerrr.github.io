@@ -502,7 +502,7 @@
         <!-- Idle birds: after 3s of cursor stillness, the logo flits in near the cursor
              and the standing bird perches on whichever horizontal divider is most visible. -->
         <img src="assets/logo/logo.png" alt="" id="idle-bird" class="idle-bird" aria-hidden="true">
-        <img src="assets/images/backgrounds/standing_bird.png" alt="" id="perched-bird" class="perched-bird" aria-hidden="true">
+        <img src="assets/images/backgrounds/bird_transparent_640.webp" alt="" id="perched-bird" class="perched-bird" aria-hidden="true">
         <script>
         (function () {
             var bird    = document.getElementById('idle-bird');
@@ -551,9 +551,11 @@
                 // element's bottom; the timeline span is a thin line so top == bottom.
                 var pageBottom = r.bottom + window.pageYOffset;
                 var pageLeft   = r.left   + window.pageXOffset;
-                var birdH = perched.offsetHeight || 70;
+                var birdH = perched.offsetHeight || 130;
+                // The bird image has empty canvas below the feet; feet sit at ~82.5% of height.
+                var FEET_RATIO = 0.825;
                 var x = pageLeft + r.width * lastFrac;
-                var y = pageBottom - birdH + 6; // toes overlap the line slightly
+                var y = pageBottom - birdH * FEET_RATIO + 4; // feet overlap the line a touch
                 perched.style.left = x + 'px';
                 perched.style.top  = y + 'px';
                 perched.classList.add('visible');
