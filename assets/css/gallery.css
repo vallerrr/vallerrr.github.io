@@ -7,10 +7,16 @@
     align-items: center;
     justify-content: center;
     position: relative;
+    overflow: hidden;
     background: linear-gradient(135deg, #E8F2F7 0%, #FFF9E6 100%);
     min-height: 400px;
     padding: 100px 0;
     text-align: center;
+}
+
+.gallery-hero .container {
+    position: relative;
+    z-index: 1;
 }
 
 .gallery-header h2 {
